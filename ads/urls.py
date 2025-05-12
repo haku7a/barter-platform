@@ -1,7 +1,7 @@
 from django.urls import path
-from . import views
+from .views import ad_list_view
 
 
 urlpatterns = [
-    path('', views.ads_view, name='ads'),
+    path('', ad_list_view, name='ad_list'),
 ]
