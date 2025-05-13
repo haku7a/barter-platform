@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404 
 from django.http import HttpResponseForbidden
+from django.contrib import messages
 from .models import Ad
 from .forms import AdForm
 
@@ -40,3 +41,20 @@ def ad_update_view(request, pk):
         'ad': ad,
         }
     return render(request, 'ads/ad_form.html', context)
+
+@login_required
+def ad_delete_view(request, pk):
+    ad = get_object_or_404(Ad, pk=pk)
+    if ad.user != request.user:
+        return HttpResponseForbidden("Вы не можете удалить это объявление.")
+    
+    if request.method == 'POST':
+        ad_title = ad.title
+        ad.delete()
+        messages.success(request, f'Объявление "{ad_title}" успешно удалено.')
+        return redirect('ads:ad_list')
+    context = {
+        'ad': ad,
+        'page_title': f'Удалить: {ad.title}'
+    }
+    return render(request, 'ads/ad_confirm_delete.html', context)
