@@ -16,7 +16,8 @@
             <input type="text" name="condition" id="condition" placeholder="Новый, б/у..." value="{{ request.GET.condition|default:'' }}">
             <button type="submit">Найти</button>
         </form>
-    <a href="{% url 'ads:ad_create' %}">Создать новое объявление</a> <hr>
+    <a href="{% url 'ads:ad_create' %}">Создать новое объявление</a>
+    <a href="{% url 'ads:exchange_proposal_list' %}">Открыть запросы</a> <hr>
 
     {% if page_obj %}
         {% for ad in page_obj %}
