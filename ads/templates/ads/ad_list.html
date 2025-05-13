@@ -18,8 +18,8 @@
         </form>
     <a href="{% url 'ads:ad_create' %}">Создать новое объявление</a> <hr>
 
-    {% if ads %}
-        {% for ad in ads %}
+    {% if page_obj %}
+        {% for ad in page_obj %}
             <div class="ad-item">
                 <h3>{{ ad.title }}</h3>
                 <p>{{ ad.description|truncatewords:30 }}</p>
@@ -41,5 +41,21 @@
     {% else %}
         <p>Пока нет ни одного объявления.</p>
     {% endif %}
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_query_params %}&{{ current_query_params }}{% endif %}">предыдущая</a>
+            {% endif %}
+
+            <span class="current">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if current_query_params %}&{{ current_query_params }}{% endif %}">следующая</a>
+            {% endif %}
+        </span>
+    </div>
 </body>
 </html>
