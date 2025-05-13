@@ -5,10 +5,16 @@ from django.contrib import messages
 from .models import Ad
 from .forms import AdForm
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 def ad_list_view(request):
-    ads = Ad.objects.all().order_by('-created_at')
-    paginator = Paginator(ads, 5)
+    ads_list = Ad.objects.all().order_by('-created_at')
+    query = request.GET.get('q')
+    if query:
+        ads_list = ads_list.filter(
+            Q(title__icontains=query) | Q(description__icontains=query)
+        )
+    paginator = Paginator(ads_list, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     query_params = request.GET.copy()
