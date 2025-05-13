@@ -7,4 +7,5 @@ urlpatterns = [
     path('', ad_list_view, name='ad_list'),
     path('create/', ad_create_view, name='ad_create'),
     path('ad/<int:pk>/edit/', ad_update_view, name='ad_update'),
+    path('ad/<int:pk>/delete/', ad_list_view, name='ad_delete'),
 ]
