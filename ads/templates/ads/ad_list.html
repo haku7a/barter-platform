@@ -35,6 +35,8 @@
                 {% if request.user.is_authenticated and ad.user == request.user %}
                         <a href="{% url 'ads:ad_update' pk=ad.pk %}">Редактировать</a>
                         <a href="{% url 'ads:ad_delete' pk=ad.pk %}">Удалить</a>
+                        {% else %}
+                            <a href="{% url 'ads:exchange_proposal_create' ad_receiver_pk=ad.pk %}">Предложить обмен</a>
                 {% endif %}
             </div>
         {% endfor %}
