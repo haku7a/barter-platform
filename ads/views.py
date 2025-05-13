@@ -4,10 +4,23 @@ from django.http import HttpResponseForbidden
 from django.contrib import messages
 from .models import Ad
 from .forms import AdForm
+from django.core.paginator import Paginator
 
 def ad_list_view(request):
     ads = Ad.objects.all().order_by('-created_at')
-    return render(request, 'ads/ad_list.html', {'ads': ads}) 
+    paginator = Paginator(ads, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    query_params = request.GET.copy()
+    if 'page' in query_params:
+        del query_params['page']
+    current_query_params_encoded = query_params.urlencode()
+
+    context = {
+        'page_obj': page_obj,
+        'current_query_params': current_query_params_encoded
+    }
+    return render(request, 'ads/ad_list.html', context)
 
 @login_required
 def ad_create_view(request):
