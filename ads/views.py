@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseForbidden
 from django.contrib import messages
 from .models import Ad
-from .forms import AdForm
+from .forms import AdForm, ExchangeProposalForm
 from django.core.paginator import Paginator
 from django.db.models import Q
 
@@ -86,3 +86,30 @@ def ad_delete_view(request, pk):
         'page_title': f'Удалить: {ad.title}'
     }
     return render(request, 'ads/ad_confirm_delete.html', context)
+
+@login_required
+def exchange_proposal_create_view(request, ad_receiver_pk):
+    ad_receiver = get_object_or_404(Ad, pk=ad_receiver_pk)
+    if ad_receiver.user == request.user:
+        messages.error(request, "Вы не можете сделать предложение обмена для своего собственного объявления.")
+        return redirect('ads:ad_list')
+    user_ads_count = Ad.objects.filter(user=request.user).count()
+    if user_ads_count == 0:
+        messages.warning(request, "У вас нет объявлений, которые можно предложить для обмена. Сначала создайте объявление.")
+        return redirect('ads:ad_create')
+    if request.method == 'POST':
+        form = ExchangeProposalForm(request.POST, user=request.user)
+        if form.is_valid():
+            proposal = form.save(commit=False)
+            proposal.ad_receiver = ad_receiver
+            proposal.save()
+            messages.success(request, f"Ваше предложение для объявления '{ad_receiver.title}' успешно отправлено!")
+            return redirect('ads:ad_list') 
+        else:
+            form = ExchangeProposalForm(user=request.user)
+
+        context = {
+        'form': form,
+        'ad_receiver': ad_receiver,
+        }
+        return render(request, 'ads/exchange_proposal_form.html', context)
