@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма объявления - Платформа обмена</title>
+</head>
+<body>
+    <h1>Форма объявления</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %} 
+        {{ form }}
+        <button type="submit">Сохранить объявление</button>
+    </form>
+    <p><a href="{% url 'ads:ad_list' %}">Вернуться к списку</a></p>
+</body>
+</html>
