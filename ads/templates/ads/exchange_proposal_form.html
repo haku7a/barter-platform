@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Предложить обмен - Платформа обмена</title>
+</head>
+<body>
+    <h1>Предложить обмен</h1>
+
+    {% if ad_receiver %}
+    <div>
+        <h2>Вы предлагаете обмен для объявления:</h2>
+        <p><strong>{{ ad_receiver.title }}</strong></p>
+        <p>Автор: {{ ad_receiver.user.username }}</p>
+        {% if ad_receiver.image_url %}
+            <img src="{{ ad_receiver.image_url }}" alt="{{ ad_receiver.title }}">
+        {% endif %}
+        <p>{{ ad_receiver.description|truncatewords:50 }}</p>
+    </div>
+    <hr>
+    {% endif %}
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Отправить предложение</button>
+    </form>
+    <br>
+
+    {% if ad_receiver %}
+        {# <p><a href="{% url 'ads:ad_detail' pk=ad_receiver.pk %}">Вернуться к объявлению</a></p> #}
+        <p><a href="{% url 'ads:ad_list' %}">Отмена и возврат к списку объявлений</a></p>
+    {% else %}
+        <p><a href="{% url 'ads:ad_list' %}">Вернуться к списку объявлений</a></p>
+    {% endif %}
+
+</body>
+</html>
