@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение удаления - Платформа обмена</title>
+</head>
+<body>
+    <h1>{{ page_title|default:"Подтверждение удаления" }}</h1>
+    <p>Вы уверены, что хотите удалить объявление:</p>
+    <p><strong>"{{ ad.title }}"</strong>?</p>
+    <p><small>Автор: {{ ad.user.username }}, Опубликовано: {{ ad.created_at|date:"d.m.Y" }}</small></p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="actions">
+            <button type="submit">Да, удалить</button>
+            <a href="{% url 'ads:ad_list' %}">Отмена</a>
+        </div>
+    </form>
+</body>
+</html>
