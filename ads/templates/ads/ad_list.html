@@ -7,6 +7,17 @@
 </head>
 <body>
     <h1>Объявления</h1>
+        <form method="get" action="{% url 'ads:ad_list' %}">
+            <label for="q">Поиск:</label>
+            <input type="text" name="q" id="q" placeholder="Ключевые слова..." value="{{ request.GET.q|default:'' }}">
+            <label for="category">Категория:</label>
+            <input type="text" name="category" id="category" placeholder="Название категории..." value="{{ request.GET.category|default:'' }}">
+            <label for="condition">Состояние:</label>
+            <input type="text" name="condition" id="condition" placeholder="Новый, б/у..." value="{{ request.GET.condition|default:'' }}">
+            <button type="submit">Найти</button>
+        </form>
+    <a href="{% url 'ads:ad_create' %}">Создать новое объявление</a> <hr>
+
     {% if ads %}
         {% for ad in ads %}
             <div class="ad-item">
