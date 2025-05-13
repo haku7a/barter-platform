@@ -10,10 +10,19 @@ from django.db.models import Q
 def ad_list_view(request):
     ads_list = Ad.objects.all().order_by('-created_at')
     query = request.GET.get('q')
+    category_filter = request.GET.get('category')
+    condition_filter = request.GET.get('condition')
     if query:
         ads_list = ads_list.filter(
             Q(title__icontains=query) | Q(description__icontains=query)
         )
+
+    if category_filter:
+        ads_list = ads_list.filter(category__icontains=category_filter)
+
+    if condition_filter:
+        ads_list = ads_list.filter(condition__icontains=condition_filter)
+
     paginator = Paginator(ads_list, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
