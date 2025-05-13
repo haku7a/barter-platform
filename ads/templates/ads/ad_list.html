@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Платформа обмена</title>
+</head>
+<body>
+    <h1>Объявления</h1>
+    {% if ads %}
+        {% for ad in ads %}
+            <div class="ad-item">
+                <h3>{{ ad.title }}</h3>
+                <p>{{ ad.description|truncatewords:30 }}</p>
+                <div>
+                    Автор: {{ ad.user.username }} |
+                    Категория: {{ ad.category }} |
+                    Состояние: {{ ad.condition }} |
+                    Опубликовано: {{ ad.created_at|date:"d.m.Y H:i" }}
+                </div>
+                {% if ad.image_url %}
+                    <img src="{{ ad.image_url }}" alt="{{ ad.title }}">
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Пока нет ни одного объявления.</p>
+    {% endif %}
+</body>
+</html>

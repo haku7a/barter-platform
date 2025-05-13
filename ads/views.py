@@ -3,4 +3,4 @@ from .models import Ad
 
 def ad_list_view(request):
     ads = Ad.objects.all().order_by('-created_at')
-    return render(request, 'ads/index.html', {'ads': ads}) 
+    return render(request, 'ads/ad_list.html', {'ads': ads}) 
