@@ -105,11 +105,11 @@ def exchange_proposal_create_view(request, ad_receiver_pk):
             proposal.save()
             messages.success(request, f"Ваше предложение для объявления '{ad_receiver.title}' успешно отправлено!")
             return redirect('ads:ad_list') 
-        else:
+    else:
             form = ExchangeProposalForm(user=request.user)
 
-        context = {
-        'form': form,
-        'ad_receiver': ad_receiver,
-        }
-        return render(request, 'ads/exchange_proposal_form.html', context)
+    context = {
+    'form': form,
+    'ad_receiver': ad_receiver,
+    }
+    return render(request, 'ads/exchange_proposal_form.html', context)
