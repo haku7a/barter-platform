@@ -21,6 +21,9 @@
                 {% if ad.image_url %}
                     <img src="{{ ad.image_url }}" alt="{{ ad.title }}">
                 {% endif %}
+                {% if request.user.is_authenticated and ad.user == request.user %}
+                        <a href="{% url 'ads:ad_update' pk=ad.pk %}">Редактировать</a>
+                {% endif %}
             </div>
         {% endfor %}
     {% else %}
