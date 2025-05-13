@@ -23,6 +23,7 @@
                 {% endif %}
                 {% if request.user.is_authenticated and ad.user == request.user %}
                         <a href="{% url 'ads:ad_update' pk=ad.pk %}">Редактировать</a>
+                        <a href="{% url 'ads:ad_delete' pk=ad.pk %}">Удалить</a>
                 {% endif %}
             </div>
         {% endfor %}
