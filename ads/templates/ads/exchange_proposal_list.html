@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои предложения обмена - Платформа обмена</title>
+</head>
+<body>
+    <h1>Мои предложения обмена</h1>
+
+    <p><a href="{% url 'ads:ad_list' %}">Вернуться к списку объявлений</a></p>
+    <hr>
+
+        <h2>Отправленные мной предложения</h2>
+        {% if sent_proposals %}
+            {% for proposal in sent_proposals %}
+                    <h4>Предложение для объявления: "{{ proposal.ad_receiver.title }}" (Автор: {{ proposal.ad_receiver.user.username }})</h4>
+                    <p><strong>Мое объявление:</strong> "{{ proposal.ad_sender.title }}"</p>
+                    <p><strong>Статус:</strong> <span>{{ proposal.get_status_display }}</span></p>
+                    <p><strong>Комментарий:</strong> {{ proposal.comment }}</p>
+                    <p><small>Отправлено: {{ proposal.created_at|date:"d.m.Y H:i" }}</small></p>
+            <hr>
+            {% endfor %}
+        {% else %}
+            <p>Вы еще не отправляли предложений обмена.</p>
+        {% endif %}
+    <div class="proposal-list">
+        <h2>Полученные мной предложения</h2>
+        {% if received_proposals %}
+            {% for proposal in received_proposals %}
+                    <h4>Предложение от: {{ proposal.ad_sender.user.username }} для вашего объявления "{{ proposal.ad_receiver.title }}"</h4>
+                    <p><strong>Предлагает свое объявление:</strong> "{{ proposal.ad_sender.title }}"</p>
+                    <p><strong>Статус:</strong> <span>{{ proposal.get_status_display }}</span></p>
+                    <p><strong>Комментарий:</strong>Нет комментария</p>
+                    <p><small>Получено: {{ proposal.created_at|date:"d.m.Y H:i" }}</small></p>
+                    
+                    {% if proposal.status == 'pending' %}
+                        <p><em>Ожидает вашего решения.</em></p>
+                        <p>
+                            <a href="#">Принять</a> | <a href="#">Отклонить</a>
+                        </p>
+                    {% endif %}
+            <hr>
+            {% endfor %}
+        {% else %}
+            <p>Вам еще не поступало предложений обмена.</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>
