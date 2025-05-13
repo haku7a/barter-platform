@@ -3,7 +3,8 @@ from .views import (ad_list_view,
                     ad_create_view, 
                     ad_update_view, 
                     ad_delete_view, 
-                    exchange_proposal_create_view)
+                    exchange_proposal_create_view,
+                    exchange_proposal_list_view,)
 
 app_name = 'ads'
 
@@ -13,4 +14,5 @@ urlpatterns = [
     path('ad/<int:pk>/edit/', ad_update_view, name='ad_update'),
     path('ad/<int:pk>/delete/', ad_delete_view, name='ad_delete'),
     path('ad/<int:ad_receiver_pk>/propose/', exchange_proposal_create_view, name='exchange_proposal_create'),
+    path('proposals/', exchange_proposal_list_view, name='exchange_proposal_list'),
 ]

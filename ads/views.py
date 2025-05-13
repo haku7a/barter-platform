@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404 
 from django.http import HttpResponseForbidden
 from django.contrib import messages
-from .models import Ad
+from .models import Ad, ExchangeProposal
 from .forms import AdForm, ExchangeProposalForm
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -113,3 +113,14 @@ def exchange_proposal_create_view(request, ad_receiver_pk):
     'ad_receiver': ad_receiver,
     }
     return render(request, 'ads/exchange_proposal_form.html', context)
+
+@login_required
+def exchange_proposal_list_view(request):
+    user = request.user
+    sent_proposals = ExchangeProposal.objects.filter(ad_sender__user=user).order_by('-created_at')
+    received_proposals = ExchangeProposal.objects.filter(ad_receiver__user=user).order_by('-created_at')
+    context = {
+        'sent_proposals': sent_proposals,
+        'received_proposals': received_proposals,
+    }
+    return render(request, 'ads/exchange_proposal_list.html', context)
