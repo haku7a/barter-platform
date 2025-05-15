@@ -1,4 +1,5 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Ad, ExchangeProposal
 from .forms import AdForm, ExchangeProposalForm
@@ -186,3 +187,44 @@ class ExchangeProposalFormTest(TestCase):
         }
         form = ExchangeProposalForm(data=form_data, user=self.proposing_user)
         self.assertTrue(form.is_valid(), msg=f"Форма не валидна, ошибки: {form.errors.as_json()}")
+
+class AdCreateViewTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username='viewtestuser', password='password123')
+        cls.url = reverse('ads:ad_create') 
+
+    def setUp(self):
+        self.client = Client()
+        self.client.login(username='viewtestuser', password='password123')
+
+    def test_ad_create_view_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'ads/ad_form.html')
+        self.assertIsInstance(response.context['form'], AdForm)
+
+    def test_ad_create_view_post_success(self):
+        """Тест успешного POST запроса к ad_create_view (создание объявления)."""
+        initial_ad_count = Ad.objects.count()
+        ad_data = {
+            'title': 'Новое объявление из View',
+            'description': 'Описание для теста view.',
+            'category': 'ТестКатегория',
+            'condition': 'ТестСостояние',
+        }
+        response = self.client.post(self.url, data=ad_data)
+
+        self.assertEqual(Ad.objects.count(), initial_ad_count + 1)
+        new_ad = Ad.objects.latest('created_at')
+        self.assertEqual(new_ad.title, 'Новое объявление из View')
+        self.assertEqual(new_ad.user, self.user) 
+
+        self.assertRedirects(response, reverse('ads:ad_list'))
+
+    def test_ad_create_view_requires_login(self):
+        self.client.logout()
+        response = self.client.get(self.url)
+        expected_redirect_url = f"{reverse('login')}?next={self.url}"
+        self.assertEqual(response.status_code, 302) 
