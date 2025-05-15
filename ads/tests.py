@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from .models import Ad
+from .models import Ad, ExchangeProposal
 from django.utils import timezone
 
 class AdModelTest(TestCase):
@@ -38,3 +38,48 @@ class AdModelTest(TestCase):
     def test_ad_created_at_auto_filled(self):
         self.assertIsNotNone(self.ad_minimal_fields.created_at)
         self.assertLess((timezone.now() - self.ad_minimal_fields.created_at).total_seconds(), 5)
+
+class ExchangeProposalModelTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user_sender = User.objects.create_user(username='sender', password='password123')
+        cls.user_receiver = User.objects.create_user(username='receiver', password='password123')
+
+        cls.ad_sender = Ad.objects.create(
+            user=cls.user_sender,
+            title='Объявление отправителя',
+            description='Описание от отправителя',
+            category='Книги',
+            condition='Хорошее'
+        )
+        cls.ad_receiver = Ad.objects.create(
+            user=cls.user_receiver,
+            title='Объявление получателя',
+            description='Описание от получателя',
+            category='Игры',
+            condition='Отличное'
+        )
+
+        cls.proposal = ExchangeProposal.objects.create(
+            ad_sender=cls.ad_sender,
+            ad_receiver=cls.ad_receiver,
+            comment='Давай меняться!'
+        )
+
+    def test_exchange_proposal_creation(self):
+        """Тест создания ExchangeProposal и проверки его полей."""
+        self.assertEqual(self.proposal.ad_sender.title, 'Объявление отправителя')
+        self.assertEqual(self.proposal.ad_receiver.title, 'Объявление получателя')
+        self.assertEqual(self.proposal.comment, 'Давай меняться!')
+        self.assertEqual(self.proposal.status, 'pending')
+        self.assertTrue(isinstance(self.proposal, ExchangeProposal))
+
+    def test_exchange_proposal_str_method(self):
+        """Тест строкового представления ExchangeProposal."""
+        expected_str = f"от {self.user_sender.username} для {self.ad_receiver.title}"
+        self.assertEqual(str(self.proposal), expected_str)
+
+    def test_exchange_proposal_created_at_auto_filled(self):
+        self.assertIsNotNone(self.proposal.created_at)
+        self.assertLess((timezone.now() - self.proposal.created_at).total_seconds(), 5)
