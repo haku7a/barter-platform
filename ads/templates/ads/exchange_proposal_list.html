@@ -37,7 +37,14 @@
                     {% if proposal.status == 'pending' %}
                         <p><em>Ожидает вашего решения.</em></p>
                         <p>
-                            <a href="#">Принять</a> | <a href="#">Отклонить</a>
+                            <form action="{% url 'ads:exchange_proposal_update_status' proposal_pk=proposal.pk new_status='accepted' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit">Принять</button>
+                            </form>
+                            <form action="{% url 'ads:exchange_proposal_update_status' proposal_pk=proposal.pk new_status='rejected' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit">Отклонить</button>
+                            </form>
                         </p>
                     {% endif %}
             <hr>
