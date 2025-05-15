@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from .models import Ad, ExchangeProposal
+from .forms import AdForm
 from django.utils import timezone
 
 class AdModelTest(TestCase):
@@ -83,3 +84,42 @@ class ExchangeProposalModelTest(TestCase):
     def test_exchange_proposal_created_at_auto_filled(self):
         self.assertIsNotNone(self.proposal.created_at)
         self.assertLess((timezone.now() - self.proposal.created_at).total_seconds(), 5)
+
+class AdFormTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username='formtestuser', password='password123')
+
+    def test_ad_form_valid_data(self):
+        """Тест AdForm с валидными данными."""
+        form_data = {
+            'title': 'Новое объявление из формы',
+            'description': 'Подробное описание товара.',
+            'category': 'Техника',
+            'condition': 'Идеальное',
+        }
+        form = AdForm(data=form_data)
+        self.assertTrue(form.is_valid(), msg=f"Форма не валидна, ошибки: {form.errors.as_json()}")
+
+    def test_ad_form_missing_required_title(self):
+        """Тест AdForm, когда отсутствует обязательное поле title."""
+        form_data = {
+            'description': 'Описание без заголовка.',
+            'category': 'Мебель',
+            'condition': 'Хорошее',
+        }
+        form = AdForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('title', form.errors)
+
+    def test_ad_form_with_image_url(self):
+        form_data = {
+            'title': 'Объявление с картинкой',
+            'description': 'Описание товара с картинкой.',
+            'image_url': 'http://example.com/image.png',
+            'category': 'Одежда',
+            'condition': 'Новое',
+        }
+        form = AdForm(data=form_data)
+        self.assertTrue(form.is_valid(), msg=f"Форма не валидна, ошибки: {form.errors.as_json()}")
