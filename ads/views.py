@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404 
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, Http404 
 from django.contrib import messages
 from .models import Ad, ExchangeProposal
 from .forms import AdForm, ExchangeProposalForm
@@ -124,3 +124,24 @@ def exchange_proposal_list_view(request):
         'received_proposals': received_proposals,
     }
     return render(request, 'ads/exchange_proposal_list.html', context)
+
+@login_required
+def update_exchange_proposal_status_view(request, proposal_pk, new_status):
+    proposal = get_object_or_404(ExchangeProposal, pk=proposal_pk)
+
+    if proposal.ad_receiver.user != request.user:
+        return redirect('ads:exchange_proposal_list')
+    
+    if proposal.status != 'pending':
+        return redirect('ads:exchange_proposal_list')
+    
+    valid_new_statuses = ['accepted', 'rejected']
+    if new_status not in valid_new_statuses:
+        raise Http404("Недопустимый статус") 
+    
+    if request.method == 'POST':
+        proposal.status = new_status
+        proposal.save()
+        return redirect('ads:exchange_proposal_list')
+    else:
+        return redirect('ads:exchange_proposal_list')
