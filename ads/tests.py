@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from .models import Ad, ExchangeProposal
-from .forms import AdForm
+from .forms import AdForm, ExchangeProposalForm
 from django.utils import timezone
 
 class AdModelTest(TestCase):
@@ -122,4 +122,67 @@ class AdFormTest(TestCase):
             'condition': 'Новое',
         }
         form = AdForm(data=form_data)
+        self.assertTrue(form.is_valid(), msg=f"Форма не валидна, ошибки: {form.errors.as_json()}")
+
+class ExchangeProposalFormTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.proposing_user = User.objects.create_user(username='proposer', password='password123')
+        cls.receiving_user = User.objects.create_user(username='receiver_owner', password='password123')
+        cls.ad_owned_by_proposer = Ad.objects.create(
+            user=cls.proposing_user,
+            title='Мое объявление для обмена',
+            description='Предлагаю это.',
+            category='Электроника',
+            condition='Хорошее'
+        )
+        cls.another_ad_owned_by_proposer = Ad.objects.create(
+            user=cls.proposing_user,
+            title='Еще одно мое объявление',
+            description='Или это.',
+            category='Книги',
+            condition='Новое'
+        )
+        cls.ad_not_owned_by_proposer = Ad.objects.create(
+            user=cls.receiving_user, 
+            title='Чужое объявление',
+            description='Не мое.',
+            category='Инструменты',
+            condition='Б/У'
+        )
+
+    def test_exchange_proposal_form_valid_data(self):
+        form_data = {
+            'ad_sender': self.ad_owned_by_proposer.pk, 
+            'comment': 'Привет! Интересует обмен.',
+        }
+        form = ExchangeProposalForm(data=form_data, user=self.proposing_user)
+        self.assertTrue(form.is_valid(), msg=f"Форма не валидна, ошибки: {form.errors.as_json()}")
+
+    def test_exchange_proposal_form_missing_ad_sender(self):
+        form_data = {
+            'comment': 'Забыл выбрать свое объявление.',
+        }
+        form = ExchangeProposalForm(data=form_data, user=self.proposing_user)
+        self.assertFalse(form.is_valid())
+        self.assertIn('ad_sender', form.errors)
+
+    def test_exchange_proposal_form_ad_sender_queryset(self):
+        """Тест, что queryset для ad_sender фильтруется по пользователю."""
+        form = ExchangeProposalForm(user=self.proposing_user)
+        expected_ads_qs = Ad.objects.filter(user=self.proposing_user)
+        self.assertQuerySetEqual(
+            form.fields['ad_sender'].queryset.order_by('pk'),
+            expected_ads_qs.order_by('pk'),
+            transform=lambda x: x,
+            ordered=False
+        )
+        self.assertNotIn(self.ad_not_owned_by_proposer, form.fields['ad_sender'].queryset)
+
+    def test_exchange_proposal_form_comment_optional(self):
+        form_data = {
+            'ad_sender': self.another_ad_owned_by_proposer.pk,
+        }
+        form = ExchangeProposalForm(data=form_data, user=self.proposing_user)
         self.assertTrue(form.is_valid(), msg=f"Форма не валидна, ошибки: {form.errors.as_json()}")
